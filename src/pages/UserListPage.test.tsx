@@ -3,6 +3,7 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import UserListPage from "./UserListPage";
 import fetchMock, { enableFetchMocks } from "jest-fetch-mock";
+import { BrowserRouter } from "react-router-dom";
 
 const MOCK = [
   {
@@ -242,7 +243,11 @@ fetchMock.doMock();
 
 test("renders User List page with functionality", async () => {
   fetchMock.mockResponseOnce(JSON.stringify(MOCK));
-  render(<UserListPage />);
+  render(
+    <BrowserRouter>
+      <UserListPage />
+    </BrowserRouter>
+  );
 
   // Check if the user list page header is rendered
   const userListElement = await screen.findByText(/User List Page/i);

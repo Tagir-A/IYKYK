@@ -1,8 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { Table, Pagination, Search } from "../components";
+import Modal from "../components/Modal";
+import { User } from "../types/User";
+import { useNavigate } from "react-router-dom";
+
+const generateProfilePicture = (userId: number): string => {
+  return `https://i.pravatar.cc/150?u=${userId}`; // Using pravatar.cc as a placeholder image generator
+};
 
 const UserListPage: React.FC = () => {
-  const [users, setUsers] = useState<any[]>([]);
+  const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [users, setUsers] = useState<User[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(10);
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "" });
@@ -19,6 +28,7 @@ const UserListPage: React.FC = () => {
         const enrichedData = data.map((user: any) => ({
           ...user,
           age: Math.floor(Math.random() * 50) + 18, // Generate a random age between 18 and 67
+          profilePicture: generateProfilePicture(user.id), // generate random picture URL
         }));
         setUsers(enrichedData);
       } catch (error) {
@@ -36,10 +46,11 @@ const UserListPage: React.FC = () => {
 
   // Sorting
   const sortedUsers = currentUsers.sort((a, b) => {
+    const key = sortConfig.key as keyof User;
     if (sortConfig.direction === "asc") {
-      return a[sortConfig.key] > b[sortConfig.key] ? 1 : -1;
+      return a[key] > b[key] ? 1 : -1;
     } else if (sortConfig.direction === "desc") {
-      return a[sortConfig.key] < b[sortConfig.key] ? 1 : -1;
+      return a[key] < b[key] ? 1 : -1;
     }
     return 0;
   });
@@ -59,6 +70,10 @@ const UserListPage: React.FC = () => {
     });
   };
 
+  const handleUserClick = (user: User) => {
+    navigate(`/user-details/${user.id}`, { state: { user } });
+  };
+
   return (
     <div>
       <h2>User List Page</h2>
@@ -66,6 +81,7 @@ const UserListPage: React.FC = () => {
       <Table
         users={filteredUsers}
         onSort={handleSort}
+        onUserClick={handleUserClick}
         sortConfig={sortConfig}
         columns={["Name", "Email", "Age", "Actions"]}
       />
@@ -75,6 +91,9 @@ const UserListPage: React.FC = () => {
         currentPage={currentPage}
         onPageChange={setCurrentPage}
       />
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <>hello</>
+      </Modal>
     </div>
   );
 };

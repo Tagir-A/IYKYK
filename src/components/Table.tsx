@@ -1,8 +1,10 @@
 import React from "react";
+import { User } from "../types/User";
 
 interface TableProps {
-  users: any[];
+  users: User[];
   onSort: (key: string) => void;
+  onUserClick: (user: User) => void;
   sortConfig: { key: string; direction: string };
   columns: string[];
 }
@@ -10,10 +12,11 @@ interface TableProps {
 const Table: React.FC<TableProps> = ({
   users,
   onSort,
+  onUserClick,
   sortConfig,
   columns,
 }) => {
-  const getCellValue = (user: any, column: string) => {
+  const getCellValue = (user: User, column: string) => {
     // Handle special cases like sorting by 'Actions'
     // for now, just a placeholder
     if (column === "Actions") {
@@ -21,7 +24,7 @@ const Table: React.FC<TableProps> = ({
     }
 
     // Return the lowercased value for consistent comparison
-    return String(user[column.toLowerCase()]);
+    return String(user[column.toLowerCase() as keyof User]);
   };
 
   const sortedUsers = [...users].sort((a, b) => {
@@ -57,7 +60,13 @@ const Table: React.FC<TableProps> = ({
       </thead>
       <tbody>
         {sortedUsers.map((user, index) => (
-          <tr key={user.id} aria-label={`user-row-${index}`}>
+          <tr
+            key={user.id}
+            aria-label={`user-row-${index}`}
+            role="button"
+            style={{ cursor: "pointer" }}
+            onClick={() => onUserClick(user)}
+          >
             {columns.map((column) => (
               <td key={column} headers={headerIds[index]}>
                 {getCellValue(user, column)}
